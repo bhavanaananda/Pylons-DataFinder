@@ -1,0 +1,3 @@
+include datafinder/config/deployment.ini_tmpl
+recursive-include datafinder/public *
+recursive-include datafinder/templates *
