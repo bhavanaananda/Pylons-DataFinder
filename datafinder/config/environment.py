@@ -26,7 +26,8 @@ def load_environment(global_conf, app_conf):
     config.init_app(global_conf, app_conf, package='datafinder', paths=paths)
 
     config['routes.map'] = make_map(config)
-    config['pylons.app_globals'] = app_globals.Globals(config)
+    #print repr(app_globals.Globals(config))
+    config['pylons.app_globals'] = app_globals.Globals()
     config['pylons.h'] = datafinder.lib.helpers
     
     # Setup cache object as early as possible
