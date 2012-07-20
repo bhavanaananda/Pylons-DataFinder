@@ -20,7 +20,15 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
+    
+    map.connect('/home', controller='home', action='index')
+    map.connect('/cookies', controller='cookies', action='index')
+    map.connect('/about', controller='about', action='index')
+    map.connect('/list_sources', controller='list_sources', action='index')
+    ##map.connect('/manage_source', controller='manage_source', action='index')
+    map.connect('/manage_source/{source}', controller='manage_source', action='managesource')
+##    map.connect('/search', controller='search', action='index')
+##    map.redirect('/search/{action}', 'http://192.168.2.211/search/{action}')
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')
-
     return map

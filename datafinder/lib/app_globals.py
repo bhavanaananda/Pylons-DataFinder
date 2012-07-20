@@ -26,9 +26,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from pylons import config
 
-from redis import Redis
+##from redis import Redis
 
-from datafinder.lib.utils import authz
+##from datafinder.lib.utils import authz
 from datafinder.lib.data_sync import sync_members
 from datafinder.lib.htpasswd import HtpasswdFile
 from datafinder.lib.broadcast import BroadcastToRedis
@@ -43,14 +43,14 @@ class Globals(object):
 
     """
 
-    def __init__(self):
+    def __init__(self,config):
         """One instance of Globals is created during application
         initialization and is available during requests via the
         'app_globals' variable
 
         """
         
-        self.authz = authz
+        ##self.authz = authz
         #self.users = _USERS
         self.NAMESPACES = NAMESPACES
         self.PREFIXES = PREFIXES
