@@ -361,7 +361,7 @@ class SearchController(BaseController):
             
             c.add_facet = u"%ssearch/detailed?q=%s&" % ('/', c.q.encode('utf-8'))
             c.add_facet = c.add_facet + urlencode(c.search) + filter_url
-            
+            c.src = ag.root
             if not solr_response:
                 # conneg return
                 response.status_int = 200

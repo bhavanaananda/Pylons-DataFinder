@@ -64,9 +64,9 @@ if 'type' in c.docs[doc_index] and c.docs[doc_index]['type']:
 %>
 <h2 class="resultTitle">
 % if isSilo == True:
-<a href="/${c.docs[doc_index]['silo']}" title="Silo"><img title="Silo" alt="Silo" src="/static/styles/images/silo-view-icon-24.png">
+<a href="${c.src}/${c.docs[doc_index]['silo']}" title="Silo"><img title="Silo" alt="Silo" src="/static/styles/images/silo-view-icon-24.png">
 % else:
-<a href="/${c.docs[doc_index]['silo']}/datasets/${c.docs[doc_index]['id']}" title="Data package">
+<a href="${c.src}/${c.docs[doc_index]['silo']}/datasets/${c.docs[doc_index]['id']}" title="Data package">
 <img title="Data package" alt="Data package" src="/static/styles/images/datapackage-24.png">
 % endif
 % if 'title' in c.docs[doc_index] and c.docs[doc_index]['title'] and c.docs[doc_index]['title'][0]:
