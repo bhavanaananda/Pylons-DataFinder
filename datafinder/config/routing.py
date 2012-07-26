@@ -25,6 +25,8 @@ def make_map(config):
     map.connect('/cookies', controller='cookies', action='index')
     map.connect('/about', controller='about', action='index')
     map.connect('/list_sources', controller='list_sources', action='index')
+    map.connect('/create_source', controller='create_source', action='index')
+    map.connect('/admin', controller='admin', action='index')
     ##map.connect('/manage_source', controller='manage_source', action='index')
     map.connect('/manage_source/{source}', controller='manage_source', action='managesource')
 ##    map.connect('/search', controller='search', action='index')

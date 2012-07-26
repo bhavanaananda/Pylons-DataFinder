@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+<%inherit file="/base.html" />
+<%def name="head_tags()">
+  <title> List of Sources </title>
+</%def>
+<%
+n = len(c.source_infos)
+%>
+<h1> List of Sources </h1>
+% if c.source_infos and n > 0:
+  <p>Number of sources: ${n}</p>
+  <div class="silo_list">
+  <table summary="list of sources in Databank" class="siloList">
+  <tr>
+    <th>Source title</th>
+    <th>Number of data packages in the source</th>
+    <th>Last modified date</th>
+  </tr>
+  % for source in c.source_infos:
+    <tr>
+    <td><a href="${c.src}/${source}">${c.source_infos[source][0]}</a></td>
+    <td>${c.source_infos[source][1]}</td>
+    <td>${c.source_infos[source][2]}</td>
+    </tr>
+  % endfor
+  </table>
+  </div>
+% else:
+  <p>Number of sources: ${n}</p>
+% endif
+
+  <div id="editor_view">
+  <h2>Edit options</h2>
+  <ul class="stateInfo">
+  <li><a href="/create_source" onclick="showhide('add_silo');">
+    <img src="/static/styles/images/silo-add-icon-24.png"/>Create new source</a></li>
+  <li><a href="#add_user" onclick="showhide('add_user');">
+    <img src="/static/styles/images/delete-icon-24.png"/>Delete source</a></li>
+  </ul>

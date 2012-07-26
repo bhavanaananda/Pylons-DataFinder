@@ -22,11 +22,15 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import logging
-
+import logging, json
 from datafinder.lib.base import BaseController, render
 from pylons import tmpl_context as c
 log = logging.getLogger(__name__)
+from pylons import app_globals as ag
+import urllib2
+import base64
+import urllib
+from datafinder.lib.multipartform import MultiPartForm
 
 class ListSourcesController(BaseController):
     def index(self):
@@ -36,6 +40,57 @@ class ListSourcesController(BaseController):
         c.q=""
         c.typ=""
         c.path =""
-        c.source_infos=[["AA","TITLE AA","DATE INFO"],["BB","TITLE BB","DATE INFO"],["BB","TITLE BB","DATE INFO"]]
+        ##c.source_infos=[["AA","TITLE AA","DATE INFO"],["BB","TITLE BB","DATE INFO"],["BB","TITLE BB","DATE INFO"]]
         c.user_logged_in_name=""
-        return render('/list_sources.html')
+        c.src = ag.root
+        
+        srcurl = ag.root +'/silos'
+        req = urllib2.Request(srcurl)
+        USER = "admin"
+        PASS = "test"
+        auth = 'Basic ' + base64.urlsafe_b64encode("%s:%s" % (USER, PASS))
+        req.add_header('Authorization', auth)
+        req.add_header('Accept', 'application/JSON')
+#        req.add_data(urllib.urlencode({'silo': silo, 
+#                                       'title':title,
+#                                       'description':description, 
+#                                       'notes':notes, 
+#                                       'administrators':administrators,
+#                                       'managers':managers,
+#                                       'users':users,
+#                                       'disk_allocation':disk_allocation}))
+#        print req.get_data()
+        ans = urllib2.urlopen(req)
+#        print
+#        print 'SERVER RESPONSE:'
+        c.sources =  json.loads(ans.read())
+        print c.sources
+        
+        c.source_infos = {}
+        for source in c.sources:
+         
+            srcurl = ag.root + '/' + source + '/states'
+            req = urllib2.Request(srcurl)
+            req.add_header('Authorization', auth)
+            req.add_header('Accept', 'application/JSON')
+#        req.add_data(urllib.urlencode({'silo': silo, 
+#                                       'title':title,
+#                                       'description':description, 
+#                             show group_permission          'notes':notes, 
+#                                       'administrators':administrators,
+#                                       'managers':managers,
+#                                       'users':users,
+#                                       'disk_allocation':disk_allocation}))
+            ans = urllib2.urlopen(req)
+            state_info =  json.loads(ans.read())
+#            print state_info
+#            state_info = ag.granary.describe_silo(silo)
+#            if 'title' in state_info and state_info['title']:
+#                c.source_infos[source].append(state_info['title'])
+#            else:
+#                c.source_infos[source].append(len(state_info['datasets']))
+            c.source_infos[source] = [source, len(state_info['datasets']), '']
+#            c.source_infos[source].append('') #getSiloModifiedDate(silo)
+        print "sourceinfos:"
+        print c.source_infos
+        return render('/list_of_sources.html')

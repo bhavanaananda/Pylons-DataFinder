@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+<%inherit file="/base.html" />
+<%def name="head_tags()">
+  <title> List of Sources </title>
+</%def>
+<h1> Create new Source</h1>
 <form class="create_silo" method="POST" enctype="multipart/form-data" action="/admin" accept-charset="UTF-8">
-<div><label for="newSilo">Silo name (eg 'a' -> /a/datasets/...)</label>
+<div><label for="newSilo">Source  name (eg 'a' -> /a/datasets/...)</label>
 <input type="text" name="silo" id="newSilo"/></div>
-<div class="form_helper">The machine readable name of the silo, used by the system and in the urls. <br/>
-<br/>For example the name <i>siloa</i> will appear in the url as <i>http://databank/siloa/...</i></div></li>
+<div class="form_helper">The machine readable name of the source, used by the system and in the urls. <br/>
+<br/>For example the name <i>sourcea</i> will appear in the url as <i>http://databank/sourcea/...</i></div></li>
 <div><label for="newSiloTitle">Title:</label>
 <input type="text" id="newSiloTitle" name="title" /></div>
 <div><label for="newSiloDescription">Description:</label>
@@ -21,5 +26,7 @@
 <div class="form_helper">Separate multiple usernames with a comma</div>
 <div><label for="newSiloAllocation">Disk Allocation (in Kb):</label>
 <input id="newSiloAllocation" type="textbox" name="disk_allocation" /></div>
-<div><input type="submit" value="Create new silo"/></div>
+<div><input type="submit" value="Create new source"/></div>
 </form>
+
+
