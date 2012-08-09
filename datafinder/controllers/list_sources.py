@@ -27,10 +27,9 @@ from datafinder.lib.base import BaseController, render
 from pylons import tmpl_context as c
 log = logging.getLogger(__name__)
 from pylons import app_globals as ag
-import urllib2
-import base64
-import urllib
-from datafinder.lib.multipartform import MultiPartForm
+from datafinder.lib.HTTP_request import HTTPRequest
+from datafinder.model import meta, SourceInfo
+from sqlalchemy.exc import IntegrityError
 
 class ListSourcesController(BaseController):
     def index(self):
@@ -40,57 +39,36 @@ class ListSourcesController(BaseController):
         c.q=""
         c.typ=""
         c.path =""
-        ##c.source_infos=[["AA","TITLE AA","DATE INFO"],["BB","TITLE BB","DATE INFO"],["BB","TITLE BB","DATE INFO"]]
         c.user_logged_in_name=""
         c.src = ag.root
-        
-        srcurl = ag.root +'/silos'
-        req = urllib2.Request(srcurl)
-        USER = "admin"
-        PASS = "test"
-        auth = 'Basic ' + base64.urlsafe_b64encode("%s:%s" % (USER, PASS))
-        req.add_header('Authorization', auth)
-        req.add_header('Accept', 'application/JSON')
-#        req.add_data(urllib.urlencode({'silo': silo, 
-#                                       'title':title,
-#                                       'description':description, 
-#                                       'notes':notes, 
-#                                       'administrators':administrators,
-#                                       'managers':managers,
-#                                       'users':users,
-#                                       'disk_allocation':disk_allocation}))
-#        print req.get_data()
-        ans = urllib2.urlopen(req)
-#        print
-#        print 'SERVER RESPONSE:'
-        c.sources =  json.loads(ans.read())
+        c.host = ag.host
+        user_name = 'admin'
+        password = 'test'
+        datastore = HTTPRequest(endpointhost=c.host)
+        datastore.setRequestUserPass(endpointuser=user_name, endpointpass=password)
+
+        (resp, respdata) = datastore.doHTTP_GET(resource="/silos", expect_type="application/JSON")
+        c.sources =  json.loads(respdata)
         print c.sources
         
         c.source_infos = {}
         for source in c.sources:
-         
-            srcurl = ag.root + '/' + source + '/states'
-            req = urllib2.Request(srcurl)
-            req.add_header('Authorization', auth)
-            req.add_header('Accept', 'application/JSON')
-#        req.add_data(urllib.urlencode({'silo': silo, 
-#                                       'title':title,
-#                                       'description':description, 
-#                             show group_permission          'notes':notes, 
-#                                       'administrators':administrators,
-#                                       'managers':managers,
-#                                       'users':users,
-#                                       'disk_allocation':disk_allocation}))
-            ans = urllib2.urlopen(req)
-            state_info =  json.loads(ans.read())
-#            print state_info
-#            state_info = ag.granary.describe_silo(silo)
-#            if 'title' in state_info and state_info['title']:
-#                c.source_infos[source].append(state_info['title'])
-#            else:
-#                c.source_infos[source].append(len(state_info['datasets']))
-            c.source_infos[source] = [source, len(state_info['datasets']), '']
-#            c.source_infos[source].append('') #getSiloModifiedDate(silo)
-        print "sourceinfos:"
-        print c.source_infos
+            (resp, respdata) = datastore.doHTTP_GET(resource='/' + source + '/states', expect_type="application/JSON")
+            state_info =  json.loads(respdata)
+            c.source_infos[source] = [source, len(state_info['datasets'])]
+        ##print "sourceinfos:"
+        ##print c.source_infos
+        
+        c.unregistered_sources = []
+        
+        
+        try:
+            s_q= meta.Session.query(SourceInfo.silo)
+            for source in s_q:
+                c.unregistered_sources.append(source.silo)
+            print "Unregistered sources"
+            print c.unregistered_sources
+        except IntegrityError:
+            meta.Session.rollback()
+            return False
         return render('/list_of_sources.html')

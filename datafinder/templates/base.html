@@ -13,11 +13,30 @@
 <meta charset="utf-8" /> 
 
   
-  <script type="text/javascript" src="/static/jquery.js" />
+  <script type="text/javascript" src="/static/jquery.js"></script>
   <!--${ h.javascript_link( '/static/js/html5.js' ) } -->
   ${self.head_tags()}
   <script type="text/javascript">
   $(document).ready( function() {
+  
+  $('#save').click( function()
+	{
+	    var actionURL = "/admin/save_source";
+	    $('#form1').attr('action', actionURL);  
+	    $("#form1")[0].submit();    
+	});
+  $('#register').click( function()
+	{
+	    var actionURL = "/admin/register_source";
+	    $('#form1').attr('action', actionURL);  
+	    $("#form1")[0].submit();    
+	});
+  $('#activate').click( function()
+	{
+	    var actionURL = "/admin";
+	    $('#form1').attr('action', actionURL);
+        $("#form1")[0].submit();    
+	});
 
   $('a.delete').click( function() {
     var theAnchor = this;

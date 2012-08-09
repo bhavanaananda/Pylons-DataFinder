@@ -22,7 +22,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from datafinder.model import meta, User, Group, Permission, Datasets
+#from datafinder.model import meta, User, Group, Permission, Datasets
 from sqlalchemy.exc import IntegrityError
 #import traceback
 #import logging

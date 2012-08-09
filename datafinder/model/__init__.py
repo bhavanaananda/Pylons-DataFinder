@@ -3,7 +3,7 @@
 import sqlalchemy as sa
 from sqlalchemy import orm
 from datafinder.model import meta
-from datafinder.model.auth import User, Group, Permission, Datasets
+from datafinder.model.auth import SourceInfo
 
 def init_model(engine):
     """Call me before using any of the tables or classes in the model"""

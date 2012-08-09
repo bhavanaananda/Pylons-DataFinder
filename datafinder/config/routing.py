@@ -20,13 +20,21 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
+    map.redirect('/*(url)/', '/{url}',
+             _redirect_code='301 Moved Permanently')
+
     
     map.connect('/home', controller='home', action='index')
+    map.connect("/login", controller='account', action='login')
     map.connect('/cookies', controller='cookies', action='index')
     map.connect('/about', controller='about', action='index')
     map.connect('/list_sources', controller='list_sources', action='index')
     map.connect('/create_source', controller='create_source', action='index')
+    map.connect('/{source}/approve_source', controller='create_source', action='approve')
+    map.connect('/admin/save_source', controller='admin', action='savesource')
+    map.connect('/admin/register_source', controller='admin', action='registersource')
     map.connect('/admin', controller='admin', action='index')
+    map.connect('/{source}/admin', controller='admin', action='sourceview')
     ##map.connect('/manage_source', controller='manage_source', action='index')
     map.connect('/manage_source/{source}', controller='manage_source', action='managesource')
 ##    map.connect('/search', controller='search', action='index')

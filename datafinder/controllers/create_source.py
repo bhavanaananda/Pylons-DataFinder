@@ -28,6 +28,8 @@ from datafinder.lib.base import BaseController, render
 from pylons import tmpl_context as c
 log = logging.getLogger(__name__)
 from pylons import app_globals as ag
+from datafinder.model import meta, SourceInfo
+from sqlalchemy.exc import IntegrityError
 
 class CreateSourceController(BaseController):
     def index(self):
@@ -39,4 +41,48 @@ class CreateSourceController(BaseController):
         c.q=""
         c.typ=""
         c.src = ag.root
+        c.host = ag.host
+        c.silo=""
+        c.source = ""
+        c.kw={}       
+        c.activate = None
+        c.message=None
+        c.header = "create"
+        c.kw={}
         return render('/create_new_source.html')
+    
+    def approve(self,source):
+        c.silo_name = ''
+        c.ident = ''
+        c.id =""
+        c.path =""
+        c.user_logged_in_name=""
+        c.q=""
+        c.typ=""
+        c.src = ag.root
+        c.host = ag.host
+        c.silo=""
+        c.source = source
+        c.message =None
+        state_info = None       
+        print "source requested: "
+        print c.source 
+        c.activate=""
+        c.header = "approve"
+        c.kw={}
+        try:
+            s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == c.source).filter(SourceInfo.activate == False)  
+            for src in s_q:
+                c.kw = {'silo':src.silo, 
+                        'title':src.title,                       
+                        'description':src.description,
+                        'notes':src.notes,
+                        'users':src.users,
+                        'disk_allocation':src.disk_allocation,
+                        'activate':src.activate
+                       }       
+        except IntegrityError:
+            meta.Session.rollback()
+            return False     
+        return render("/create_new_source.html")    
+         

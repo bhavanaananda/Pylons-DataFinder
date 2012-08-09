@@ -10,6 +10,11 @@ import shutil
 #from logging import handlers
 import logging.config
 #from LogConfigParser import Config
+import urllib2
+import base64
+import urllib
+from multipart import MultiPartFormData
+
 
 class TestOaiClient(unittest.TestCase):
         
@@ -73,12 +78,12 @@ class TestOaiClient(unittest.TestCase):
         #oai_listIdentifiers(src=self.source)
 
     def set_datadir(self, pid):
-        if not os.path.isdir('/tmp/eprintsdata'):
-           os.mkdir('/tmp/eprintsdata')   
-        self.datadir = '/tmp/eprintsdata/%s'%pid
-        if os.path.isdir(self.datadir):
-           shutil.rmtree(self.datadir)
-        os.mkdir(self.datadir)        
+
+        self.datadir = '/tmp/%s'%pid
+        self.datadir = '/tmp/'
+#        if os.path.isdir(self.datadir):
+#           shutil.rmtree(self.datadir)
+#        os.mkdir(self.datadir)        
         self.dc_data_file = '%s/dc_data_file.rdf'%self.datadir
         self.mods_data_file = '%s/mods_data_file'%self.datadir
 
@@ -100,6 +105,7 @@ class TestOaiClient(unittest.TestCase):
 
     
     def oai_listIdentifiers(self, src={'base':"http://eprints.maths.ox.ac.uk/cgi/oai2", 'records_base':'http://eprints.maths.ox.ac.uk/'}, resumptionToken=None):
+
         self.ids_data_file = '/tmp/ids_data_file' ##'/tmp/%s_ids_data_file'%unicode(uuid.uuid4())
         src_url = None
         if resumptionToken:
@@ -128,7 +134,9 @@ class TestOaiClient(unittest.TestCase):
                 self.delete_identifiers.append(ID.text)
             else:
                 self.identifiers.append(ID.text)
-                self.oai_getDCRecord( src, ID.text, ID.text)
+                pid = ID.text
+                pid = pid.replace('.','-')
+                self.oai_getDCRecord( src, ID.text, pid)
         rtoken = rt.findall("%(ns)sListIdentifiers/%(ns)sresumptionToken"%{'ns':self.oai_ns})
         #os.remove(self.ids_data_file)
         if rtoken:
@@ -177,6 +185,17 @@ class TestOaiClient(unittest.TestCase):
         #Get the OAI record from the source
         src_url = "%s?verb=GetRecord&metadataPrefix=oai_dc&identifier=%s"%(src['base'], identifier)
         self.set_datadir(pid)
+        req = urllib2.Request("http://192.168.2.211/admin")
+        USER = "admin"
+        PASS = "test"
+        auth = 'Basic ' + base64.urlsafe_b64encode("%s:%s" % (USER, PASS))
+        req.add_header('Authorization', auth)
+        req.add_header('Accept', 'application/JSON')
+        accepted_params = ['title', 'description', 'notes', 'owners', 'disk_allocation', 'administrators', 'managers', 'submitters']
+        req.add_data(urllib.urlencode({'silo': pid}))      
+        ans = urllib2.urlopen(req)
+        print 'SERVER RESPONSE:'
+        ans.read()
         tries = 1
         while tries < 11:
             if os.path.isfile(self.dc_data_file):

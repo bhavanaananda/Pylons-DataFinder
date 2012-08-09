@@ -61,6 +61,9 @@ class Globals(object):
         if config.has_key("granary.uri_root"):
             self.root = config['granary.uri_root']
        
+        if config.has_key("granary.host"):
+            self.host = config['granary.host']
+            
         if config.has_key("granary.store"):
             self.granary = Granary(config['granary.store'])
             

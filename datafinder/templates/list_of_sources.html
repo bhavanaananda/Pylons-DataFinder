@@ -6,7 +6,7 @@
 <%
 n = len(c.source_infos)
 %>
-<h1> List of Sources </h1>
+<h1> List of  Registered Sources </h1>
 % if c.source_infos and n > 0:
   <p>Number of sources: ${n}</p>
   <div class="silo_list">
@@ -14,13 +14,44 @@ n = len(c.source_infos)
   <tr>
     <th>Source title</th>
     <th>Number of data packages in the source</th>
-    <th>Last modified date</th>
+    <th>Manage source</th>
   </tr>
   % for source in c.source_infos:
     <tr>
-    <td><a href="${c.src}/${source}">${c.source_infos[source][0]}</a></td>
+    <td><a href="/${source}/admin">${c.source_infos[source][0]}</a></td>
     <td>${c.source_infos[source][1]}</td>
-    <td>${c.source_infos[source][2]}</td>
+    <td>
+	    <a href="/${source}/admin">
+	    <img src="/static/styles/images/silo-edit-icon-16.png" alt="Edit silo metadata" title="edit ${source}"/></a>
+	    <a class="delete" href="/${source}/admin" data-remove="delete_${source}" data-url="/admin">
+	    <img src="/static/styles/images/delete-icon-16.png" alt="Delete silo" title="Delete ${source}"/></a>
+	</td>
+    </tr>
+  % endfor
+  </table>
+  </div>
+% else:
+  <p>Number of sources: ${n}</p>
+% endif
+
+
+<h1> List of Unregistered Sources </h1>
+% if c.source_infos and n > 0:
+  <p>Number of sources awaiting admin approval: ${n}</p>
+  <div class="silo_list">
+  <table summary="list of sources awaiting admin approval" class="siloList">
+  <tr>
+    <th>Source title</th>
+    <th>Approve/Activate</th>
+  </tr>
+  % for source in c.unregistered_sources:
+    <tr>
+    <td>${source}</td>    
+    <td>
+	    <a href="/${source}/approve_source"> 
+	    	<img src="/static/styles/images/silo-edit-icon-16.png" alt="Edit silo metadata" title="edit ${source}"/>
+	    </a>	    
+	</td>
     </tr>
   % endfor
   </table>
@@ -34,6 +65,4 @@ n = len(c.source_infos)
   <ul class="stateInfo">
   <li><a href="/create_source" onclick="showhide('add_silo');">
     <img src="/static/styles/images/silo-add-icon-24.png"/>Create new source</a></li>
-  <li><a href="#add_user" onclick="showhide('add_user');">
-    <img src="/static/styles/images/delete-icon-24.png"/>Delete source</a></li>
   </ul>

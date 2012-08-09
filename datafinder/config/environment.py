@@ -4,7 +4,8 @@ import os
 from mako.lookup import TemplateLookup
 from pylons.configuration import PylonsConfig
 from pylons.error import handle_mako_error
-
+from sqlalchemy import engine_from_config
+from datafinder.model import init_model
 import datafinder.lib.app_globals as app_globals
 import datafinder.lib.helpers
 from datafinder.config.routing import make_map
@@ -21,6 +22,12 @@ def load_environment(global_conf, app_conf):
                  controllers=os.path.join(root, 'controllers'),
                  static_files=os.path.join(root, 'public'),
                  templates=[os.path.join(root, 'templates')])
+
+
+    engine = engine_from_config(app_conf, 'sqlalchemy.')
+    print "engine:"
+    print engine
+    init_model(engine)
 
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='datafinder', paths=paths)
