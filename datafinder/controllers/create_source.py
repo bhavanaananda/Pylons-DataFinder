@@ -77,6 +77,8 @@ class CreateSourceController(BaseController):
                         'title':src.title,                       
                         'description':src.description,
                         'notes':src.notes,
+                        'administrators': src.administrators,
+                        'managers':src.managers,
                         'users':src.users,
                         'disk_allocation':src.disk_allocation,
                         'activate':src.activate

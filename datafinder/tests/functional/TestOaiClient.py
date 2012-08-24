@@ -14,8 +14,8 @@ import urllib2
 import base64
 import urllib
 from multipart import MultiPartFormData
-
-
+import SparqlQueryTestCase
+from HTTP_request import HTTPRequest
 class TestOaiClient(unittest.TestCase):
         
 
@@ -30,7 +30,7 @@ class TestOaiClient(unittest.TestCase):
         self.args = {'from':None, 'until':self.until}
         self.oai_ns = "{http://www.openarchives.org/OAI/2.0/}"
         #self.silo = "sandbox"
-  #  eprints_sources = {
+  #  eprint4s_sources = {
   #  'maths':{'base':"http://eprints.maths.ox.ac.uk/cgi/oai2", 'records_base':'http://eprints.maths.ox.ac.uk/'}
   # ,'sbs' : {'args':"set=6F72613D54525545", 'base':"http://eureka.sbs.ox.ac.uk/cgi/oai2", 'records_base':'http://eureka.sbs.ox.ac.uk/'}
   # ,'economics':{'base':"http://economics.ouls.ox.ac.uk/cgi/oai2", 'records_base':'http://economics.ouls.ox.ac.uk/'}
@@ -78,13 +78,18 @@ class TestOaiClient(unittest.TestCase):
         #oai_listIdentifiers(src=self.source)
 
     def set_datadir(self, pid):
-
-        self.datadir = '/tmp/%s'%pid
-        self.datadir = '/tmp/'
-#        if os.path.isdir(self.datadir):
-#           shutil.rmtree(self.datadir)
-#        os.mkdir(self.datadir)        
-        self.dc_data_file = '%s/dc_data_file.rdf'%self.datadir
+#    def set_datadir(self):
+        self.tmpdir = '/tmp/silos'
+        if os.path.isdir(self.tmpdir):
+           shutil.rmtree(self.tmpdir)
+        os.mkdir(self.tmpdir)    
+        self.datadir = '/tmp/silos/%s'%pid
+        #self.datadir = '/tmp/'
+        if os.path.isdir(self.datadir):
+           shutil.rmtree(self.datadir)
+        os.mkdir(self.datadir)        
+        self.data_file = '%s/data_file.rdf'%self.datadir
+        self.dc_data_file = '%s/dc_manifest_file.rdf'%self.datadir
         self.mods_data_file = '%s/mods_data_file'%self.datadir
 
     def set_from(self):
@@ -129,18 +134,20 @@ class TestOaiClient(unittest.TestCase):
         tree = ET.ElementTree(file=self.ids_data_file)
         rt = tree.getroot()
         ids = rt.findall("%(ns)sListIdentifiers/%(ns)sheader/%(ns)sidentifier"%{'ns':self.oai_ns})
+        #self.oai_createSilo("eprint4s")
         for ID in ids:
-            if resumptionToken and 'deletion' in resumptionToken:
+             if resumptionToken and 'deletion' in resumptionToken:
                 self.delete_identifiers.append(ID.text)
-            else:
-                self.identifiers.append(ID.text)
-                pid = ID.text
-                pid = pid.replace('.','-')
-                self.oai_getDCRecord( src, ID.text, pid)
+             else:
+                 self.identifiers.append(ID.text)
+                 self.oai_createDataset( src, "eprint4s", ID.text)
+                 break
+                 
         rtoken = rt.findall("%(ns)sListIdentifiers/%(ns)sresumptionToken"%{'ns':self.oai_ns})
-        #os.remove(self.ids_data_file)
+         #os.remove(self.ids_data_file)
         if rtoken:
-            self.oai_listIdentifiers(src, resumptionToken=rtoken[0].text)
+             self.oai_listIdentifiers(src, resumptionToken=rtoken[0].text)
+        #shutil.rmtree(self.tmpdir)
 
     def oai_getTitle(self, src, identifier):
         #Get the OAI record from the source
@@ -179,13 +186,298 @@ class TestOaiClient(unittest.TestCase):
                 titles.append(t.text)
         return titles
     
+      
+    def oai_createSilo(self, silo):
+        #Get the OAI record from the source
+        req = urllib2.Request("http://192.168.2.216/admin")
+        USER = "admin"
+        PASS = "test"
+        auth = 'Basic ' + base64.urlsafe_b64encode("%s:%s" % (USER, PASS))
+        req.add_header('Authorization', auth)
+        req.add_header('Accept', 'application/JSON')
+        accepted_params = ['title', 'description', 'notes', 'owners', 'disk_allocation', 'administrators', 'managers', 'submitters']
+        req.add_data(urllib.urlencode({'silo': silo}))      
+        ans = urllib2.urlopen(req)
+        print 'SERVER RESPONSE:'
+        ans.read()  
+        return 
+    
+        # Create empty test submission dataset
+    def oai_createDataset(self, src, silo, identifier, embargoed=None, embargoed_until=None):
+        # Create a new dataset, check response
+        
+        metadata = self.oai_getDCMetadata(src, identifier, silo)
+        id = metadata["identifier"]
+        id = id.replace('.','-')
+        fields = \
+            [ ("id",id)
+#              ("source", metadata["source"]),
+#              ("creator", metadata["creator"]),
+#              ("subject", metadata["subject"]),
+#              ("date",metadata["date"]),
+#              ("relation", metadata["relation"]),
+#              ("title", metadata["title"]),
+#              ("type", metadata["type"])
+            ]
+        if embargoed != None:
+            if embargoed:
+                fields.append(('embargoed', 'True'))
+        else:
+                fields.append(('embargoed', 'False'))
+        if embargoed_until != None:
+            if embargoed_until == True:
+                fields.append(('embargoed_until', 'True'))
+            elif embargoed_until == False:
+                fields.append(('embargoed_until', 'False'))
+            else:
+                fields.append(('embargoed_until', embargoed_until))
+
+        dc_manifest_file = open(self.dc_data_file).read()
+        user_name = 'admin'
+        password = 'test'
+        host = '192.168.2.216'
+        http_host = 'http://192.168.2.216'
+        # Create a dataset
+        files =[]
+        (reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
+        postRequest = HTTPRequest(endpointhost=host)        
+        postRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
+        (resp,respdata) = postRequest.doHTTP_POST(
+            reqdata, reqtype, 
+            resource="/eprint4/datasets/")
+        
+        # Post the harvested oai_dc metadata file to the dataset
+        fields=[]
+        files = \
+            [ ("file", "dc_manifest_file.rdf", dc_manifest_file, "application/rdf")
+            ]
+        (reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
+        postRequest = HTTPRequest(endpointhost=host)        
+        postRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
+        (resp,respdata) = postRequest.doHTTP_POST(
+            reqdata, reqtype, 
+            resource="/eprint4/datasets/"+id)
+        
+        #<rdf:Description rdf:resource="http://example.org/testrdf.zip">
+        # Add the dc:relation into the main manifest file that related to the oai_dc manifest file
+
+        
+        fields=[ ("relation", "/eprint4/datasets/"+id+"/dc_manifest_file.rdf")]
+        files =[]
+        metadata_content = """<rdf:RDF
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#'
+>
+
+  <rdf:Description rdf:about="">
+    <rdfs:seeAlso rdf:resource="dc_manifest_file.rdf"/>
+  </rdf:Description>
+</rdf:RDF>"""
+
+        print "METADATA TO BE MUNGED" + metadata_content
+        print "resource url: /eprint4/datasets/"+id+"/manifest.rdf"
+
+        putRequest = HTTPRequest(endpointhost=host)        
+        putRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
+        (resp,respdata) = putRequest.doHTTP_PUT(
+            metadata_content,
+            resource="/eprint4/datasets/"+id+"/manifest.rdf")
+        #(reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
+        #
+        
+        # os.remove(self.dc_data_file)
+        
+        #LHobtained = resp.getheader('Content-Location', None)
+        #LHexpected = "%sdatasets/TestSubmission"%self._endpointpath
+        #self.assertEquals(LHobtained, LHexpected, 'Content-Location not correct')
+        return
+        
+#  <rdfs:seeAlso rdf:resource=" """+http_host+"/eprint4/datasets/"+id+"/dc_manifest_file.rdf"+""" "/>
+#  <rdf:Description rdf:about=" """+http_host+"""/eprint4/datasets/"""+id+""" ">
+# xmlns:dcterms='http://purl.org/dc/terms/'
+#  xmlns:oxds='http://vocab.ox.ac.uk/dataset/schema#'
+#  xmlns:ore='http://www.openarchives.org/ore/terms/'
+    def oai_mungeMetadata(self):
+        host = '192.168.2.216'
+        http_host = 'http://192.168.2.216'   
+        user_name = 'admin'
+        password = 'test'
+        id="oai:generic-eprints-org:1086"
+        fields=[ ("relation", "/eprint4/datasets/"+id+"/dc_manifest_file.rdf")]
+        files =[]
+        metadata_content = """<rdf:RDF
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#'
+>
+  <rdf:Description rdf:about="">
+    <rdfs:seeAlso  rdf:resource="dc_manifest_file.rdf" />
+  </rdf:Description>
+</rdf:RDF>"""
+
+        #print "METADATA TO BE MUNGED" + metadata_content
+       # print "resource url: /eprint4/datasets/"+id+"/manifest.rdf"
+#(resp, respdata) = datastore.doHTTP_PUT(metadata_content, resource="/sandbox/datasets/TestSubmission/manifest.rdf", expect_type="text/plain")
+
+
+        #(reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
+        putRequest = HTTPRequest(endpointhost=host)        
+        putRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
+        (resp,respdata) = putRequest.doHTTP_PUT(
+            metadata_content,
+            resource="/eprint4/datasets/"+id+"/manifest.rdf")
+        
+        # os.remove(self.dc_data_file)
+        
+        #LHobtained = resp.getheader('Content-Location', None)
+        #LHexpected = "%sdatasets/TestSubmission"%self._endpointpath
+        #self.assertEquals(LHobtained, LHexpected, 'Content-Location not correct')
+        return
+        
+    def oai_getDCMetadata(self, src, identifier, silo):
+        #Get the OAI record from the source
+        src_url = "%s?verb=GetRecord&metadataPrefix=oai_dc&identifier=%s"%(src['base'], identifier)
+        self.set_datadir(identifier)
+        tries = 1
+        while tries < 11:
+            if os.path.isfile(self.data_file):
+                self.logger.info("Downloaded DC for %s - %s"%(identifier, silo))
+                break
+            urlretrieve(src_url, self.data_file)
+            self.logger.error("Error retreiving DC for %s - %s (try # %d)"%(identifier, silo, tries))
+            tries += 1
+        urlcleanup()
+        #Parse the document using element tree, so we can extract just the tags under oai_dc
+        tree = ET.ElementTree(file=self.data_file)
+        print tree
+        rt = tree.getroot()
+
+        #Define namespaces and add them to element tree, so it uses them.
+        namespaces = {
+            'oai_dc':"http://www.openarchives.org/OAI/2.0/oai_dc/"
+            ,'dc':"http://purl.org/dc/elements/1.1/"
+            ,'xsi':"http://www.w3.org/2001/XMLSchema-instance"
+        }
+
+        for k,v in namespaces.iteritems():
+            ET._namespace_map[v] = str(k)
+
+        #Get the ID from the data header
+        #Don't need to find this as ID is passed as parameter to function
+        #record_id = rt.find("%(ns)sGetRecord/%(ns)srecord/%(ns)sheader/%(ns)sidentifier"%{'ns':self.oai_ns})
+        #if record_id:
+        #    ID = record_id.text
+
+        #Get the DC metadata from the data
+        #record_metadata = rt.find("%(ns)sGetRecord/%(ns)srecord/%(ns)smetadata"%{'ns':self.oai_ns})
+        oai_dc = rt.find("%(ns)sGetRecord/%(ns)srecord/%(ns)smetadata/{%(oai_dc)s}dc"%{'ns':self.oai_ns,'oai_dc':namespaces['oai_dc']})
+        oai_dc_string = ET.tostring(oai_dc)
+        oai_dc_string=oai_dc_string.replace("oai_dc:dc ","rdf:RDF")
+        oai_dc_string=oai_dc_string.replace('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"', '')
+        oai_dc_string=oai_dc_string.replace('xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">', "><rdf:Description rdf:about="">")
+        oai_dc_string=oai_dc_string.replace('xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"', 'xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
         
         
+        print "OAI_DC TREE:   " + ET.tostring(oai_dc)
+        
+        oai_dc_file = open(self.dc_data_file, 'w+')
+        oai_dc_file.write(oai_dc_string)#ET.tostring(oai_dc)
+        #The files are listed as identifiers in the metadata. Get them and remove the id tags
+        record_ids = oai_dc.findall("{http://purl.org/dc/elements/1.1/}identifier")
+        files = []
+        for rid in record_ids:
+            if rid.text and rid.text and rid.text.startswith('http://eureka'):
+                files.append(rid.text)
+            oai_dc.remove(rid)
+
+        #The types are listed as dc:type in the metadata. Get them
+        record_types = oai_dc.findall("{http://purl.org/dc/elements/1.1/}type")
+        types = []
+        for typ in record_types:
+            if typ.text and typ.text.strip() in self.types:
+                types.append(self.types[typ.text.strip()])
+        type = (' '.join(types)).strip()       
+        #Title
+        #The titles are listed as dc:title in the metadata. Get them
+        record_titles = oai_dc.findall("{http://purl.org/dc/elements/1.1/}title")
+        titles = []
+        for t in record_titles:
+            if t.text:
+                titles.append(t.text)
+        title = (' '.join(titles)).strip()  
+
+        #Identifier
+        sid = ET.SubElement(oai_dc, "{http://purl.org/dc/elements/1.1/}identifier")
+        sid.text = identifier
+
+        #Add the source identifier in relation
+        sid = identifier.split(':')[-1]
+        relele = ET.SubElement(oai_dc, "{http://purl.org/dc/elements/1.1/}relation")
+        relele.text = "%s%s"%(src['records_base'], sid)
+        relation = relele.text
+
+        #Source
+        sid = identifier.split(':')[-1]
+        srcele = ET.SubElement(oai_dc, "{http://purl.org/dc/elements/1.1/}source")
+        srcele.text = src['records_base']
+        source = srcele.text  
+        
+        #Creator
+        creat = oai_dc.findall("{http://purl.org/dc/elements/1.1/}creator")
+        creat_or =[]
+        for c in creat:
+            if c.text:
+                creat_or.append(c.text)
+        creator = (' '.join(creat_or)).strip()  
+        
+        #Subject
+        sub = oai_dc.findall("{http://purl.org/dc/elements/1.1/}subject")
+        subj =[]
+        for s in sub:
+            if s.text:
+                subj.append(s.text)
+        subject = (' '.join(subj)).strip()  
+        #Date
+        dat = oai_dc.findall("{http://purl.org/dc/elements/1.1/}date")
+        dates =[]
+        for d in dat:
+            if d.text:
+                dates.append(d.text)
+        date = (' '.join(dates)).strip()  
+        #Write oai_dc to the file oai_dc.xml. 
+        #metadata_tree = ET.ElementTree(element=oai_dc)
+        #metadata_tree.write('oai_dc.xml')
+
+        #Write the dc element to string
+        dc = None
+        dc = ET.tostring(oai_dc)
+        if not dc:
+            self.logger.warn('NO DC record for %s - %s'%(identifier, silo))
+        else:
+            self.logger.info('Retreived DC record for %s - %s'%(identifier, silo))
+                
+        #Return dc and list of files
+        print  {'dc':dc, 'files':files, 'types':types, 'titles':titles}
+        #return {'dc':dc, 'files':files, 'types':types, 'titles':titles}
+        
+
+        metadata={'identifier':identifier,
+                  'source':source,
+                  'creator':creator,
+                  'subject':subject,
+                  'date':date,
+                  'relation':relation,
+                  'title':title,    
+                  'type':type          
+                  }
+        print "Metadata : " + repr(metadata)
+        return metadata
+
+    
     def oai_getDCRecord(self, src, identifier, pid):
         #Get the OAI record from the source
         src_url = "%s?verb=GetRecord&metadataPrefix=oai_dc&identifier=%s"%(src['base'], identifier)
         self.set_datadir(pid)
-        req = urllib2.Request("http://192.168.2.211/admin")
+        req = urllib2.Request("http://192.168.2.216/admin")
         USER = "admin"
         PASS = "test"
         auth = 'Basic ' + base64.urlsafe_b64encode("%s:%s" % (USER, PASS))

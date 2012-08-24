@@ -56,7 +56,7 @@ class Globals(object):
         self.PREFIXES = PREFIXES
         
         self.cache = ""
-        self.api_version = 0.1
+        self.api_version = ""
 
         if config.has_key("granary.uri_root"):
             self.root = config['granary.uri_root']

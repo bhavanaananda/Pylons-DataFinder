@@ -52,20 +52,22 @@ class AdminController(BaseController):
         c.q=""
         c.typ=""
         c.host=ag.host
-        
+        print "endpointhost"
+        print c.host
         srcurl = ag.root +'/admin'
-        silo = request.params.get('silo', None)
-        title = request.params.get('title', None)
-        description = request.params.get('description', None)
-        notes = request.params.get('notes', None)
-        administrators = request.params.get('administrators', None)
-        managers = request.params.get('managers', None)
-        users = request.params.get('users', None)
-        disk_allocation = request.params.get('disk_allocation', None)
+        silo = request.params.get('silo', "")
+        title = request.params.get('title', "")
+        description = request.params.get('description', "")
+        notes = request.params.get('notes', "")
+        administrators = request.params.get('administrators', "")
+        managers = request.params.get('managers', "")
+        users = request.params.get('users', "")
+        disk_allocation = request.params.get('disk_allocation', "")
 
         user_name = 'admin'
         password = 'test'
         datastore = HTTPRequest(endpointhost=c.host)
+        
         datastore.setRequestUserPass(endpointuser=user_name, endpointpass=password)
         fields = \
             [ ("silo", silo),
@@ -77,11 +79,61 @@ class AdminController(BaseController):
               ("users", users),
               ("disk_allocation", disk_allocation)
             ]
+        print fields
         files =[]
         (reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
-        (resp,respdata) = datastore.doHTTP_POST(
-            reqdata, reqtype, resource="/admin")
-      
+        
+        (resp,respdata) = datastore.doHTTP_POST(reqdata, reqtype, resource="/admin", expect_type="application/JSON")
+        print 'respdata', respdata
+        print 'msg', resp.msg
+        print 'reason', resp.reason
+        print 'status',resp.status
+        print resp.read()
+##            print "response data for update metadata"
+        if  resp.status== 204 or resp.status==201:
+            c.message = "Source successfully created."
+            
+            #Modify the source entry in the sqllite database in the data finder. Change activate = True.
+            try:
+                s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == silo)
+                s_q.one()
+                s_q.update({
+                               'title':title,
+                               'description':description,
+                               'notes':notes,
+                               'administrators':administrators,
+                               'managers':managers,
+                               'users':users,
+                               'disk_allocation':disk_allocation,
+                               'activate':True
+                            })     
+                meta.Session.commit()
+            except orm.exc.NoResultFound:
+                sourceinfo.activate =  True
+                meta.Session.add(sourceinfo)
+                meta.Session.commit()
+                pass
+            except IntegrityError:
+                #log.error('Error adding user %s'%user_details['username'])
+                #print traceback.format_exc()
+                meta.Session.rollback()
+                return False
+            return redirect(url(controller='list_sources', action='index')) 
+        else:
+            c.message = "Source could not be successfully activated"
+            c.message = c.message + " status: " + repr(resp.status) + " " + resp.reason
+            c.kw = {    'silo':silo, 
+                        'title':title,                       
+                        'description':description,
+                        'notes':notes,
+                        'administrators': administrators,
+                        'managers':managers,
+                        'users':users,
+                        'disk_allocation':disk_allocation
+                       }
+            c.header="approve"
+            c.activate=None    
+            return render("/create_new_source.html")    
 #        req = urllib2.Request(srcurl)
 #        USER = "admin"
 #        PASS = "test"
@@ -101,7 +153,7 @@ class AdminController(BaseController):
 #        print
 #        print 'SERVER RESPONSE:'
 #        print ans.read()
-        return redirect(url(controller='list_sources', action='index')) 
+
     
     def savesource(self):
         c.silo_name = ''
@@ -115,14 +167,14 @@ class AdminController(BaseController):
         sourceinfo= SourceInfo()
         c.message= None
         #srcurl = ag.root +'/admin'
-        sourceinfo.silo = request.params.get('silo', None)
-        sourceinfo.title = request.params.get('title', None)
-        sourceinfo.description = request.params.get('description', None)
-        sourceinfo.notes = request.params.get('notes', None)
-        sourceinfo.administrators = request.params.get('administrators', None)
-        sourceinfo.managers = request.params.get('managers', None)
-        sourceinfo.users = request.params.get('users', None)
-        sourceinfo.disk_allocation = request.params.get('disk_allocation', None)
+        sourceinfo.silo = request.params.get('silo', "")
+        sourceinfo.title = request.params.get('title', "")
+        sourceinfo.description = request.params.get('description', "")
+        sourceinfo.notes = request.params.get('notes', "")
+        sourceinfo.administrators = request.params.get('administrators', "")
+        sourceinfo.managers = request.params.get('managers', "")
+        sourceinfo.users = request.params.get('users', "")
+        sourceinfo.disk_allocation = request.params.get('disk_allocation', "")
         
         try:
             s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == sourceinfo.silo)
@@ -131,6 +183,8 @@ class AdminController(BaseController):
                            'title':sourceinfo.title,
                            'description':sourceinfo.description,
                            'notes':sourceinfo.notes,
+                           'administrators': sourceinfo.administrators,
+                           'managers':sourceinfo.managers,
                            'users':sourceinfo.users,
                            'disk_allocation':sourceinfo.disk_allocation,
                            'activate':False
@@ -183,14 +237,14 @@ class AdminController(BaseController):
         sourceinfo= SourceInfo()
         c.message=None
         #srcurl = ag.root +'/admin'
-        sourceinfo.silo = request.params.get('silo', None)
-        sourceinfo.title = request.params.get('title', None)
-        sourceinfo.description = request.params.get('description', None)
-        sourceinfo.notes = request.params.get('notes', None)
-        sourceinfo.administrators = request.params.get('administrators', None)
-        sourceinfo.managers = request.params.get('managers', None)
-        sourceinfo.users = request.params.get('users', None)
-        sourceinfo.disk_allocation = request.params.get('disk_allocation', None)
+        sourceinfo.silo = request.params.get('silo', "")
+        sourceinfo.title = request.params.get('title', "")
+        sourceinfo.description = request.params.get('description', "")
+        sourceinfo.notes = request.params.get('notes', "")
+        sourceinfo.administrators = request.params.get('administrators', "")
+        sourceinfo.managers = request.params.get('managers', "")
+        sourceinfo.users = request.params.get('users', "")
+        sourceinfo.disk_allocation = request.params.get('disk_allocation', "")
         
         try:
             s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == sourceinfo.silo)
@@ -220,7 +274,7 @@ class AdminController(BaseController):
         return redirect(url(controller='list_sources', action='index'))   
     
 #    @rest.restrict('GET', 'POST', 'DELETE')
-    def sourceview(self, source):
+    def sourceinfo(self, source):
         c.silo_name = ''
         c.ident = ''
         c.id =""
@@ -267,32 +321,37 @@ class AdminController(BaseController):
         print "source requested: "
         print c.source 
         c.kw={}
-        try:
-            s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == c.source).filter(SourceInfo.activate == False)  
-            for src in s_q:
-                c.kw = {'silo':src.silo, 
-                        'title':src.title,                       
-                        'description':src.description,
-                        'notes':src.notes,
-                        'users':src.users,
-                        'disk_allocation':src.disk_allocation,
-                        'activate':src.activate
-                       }    
-                return render("/admin_sourceview.html")       
-        except IntegrityError:
-            meta.Session.rollback()
-            return False     
+#        try:
+#            c.kw = {    'silo':src.silo, 
+#                        'title':src.title,                       
+#                        'description':src.description,
+#                        'notes':src.notes,
+#                        'users':src.users,
+#                        'disk_allocation':src.disk_allocation,
+#                        'activate':src.activate
+#                    }    
+#            s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == c.source).filter(SourceInfo.activate == False)  
+#            s_q.one()
+#            return render("/admin_sourceview.html") 
+#        except orm.exc.NoResultFound:
+#            sourceinfo.activate =  False
+#            meta.Session.add(sourceinfo)
+#            meta.Session.commit()
+#            pass      
+#        except IntegrityError:
+#            meta.Session.rollback()
+#            return False     
             
             ## If the source is not activated only then get the source information from the registered information area
-            (resp, respdata) = datastore.doHTTP_GET(resource='/' + c.source + '/states', expect_type="application/JSON")
-            state_info =  json.loads(respdata)       
+        (resp, respdata) = datastore.doHTTP_GET(resource='/' + c.source + '/states', expect_type="application/JSON")
+        state_info =  json.loads(respdata)       
         ##print json.loads(respdata)
         c.kw=state_info
         
-        
-        
+        print "http_method = "
+        print http_method
         if http_method == "GET":
-            return render("/admin_sourceview.html")
+            return render("/admin_sourceinfo.html")
         elif http_method == "POST":
             ##silo = request.params.get('silo', None)
             title = request.params.get('title', '')
@@ -325,36 +384,52 @@ class AdminController(BaseController):
 ##            print "response data for update metadata"
             if  resp.status== 204:
                 c.message = "Metadata updated"
-                return render("/admin_sourceview.html")
+                return render("/admin_sourceinfo.html")
             else:
                 abort(resp.status, respdata )
+                
         elif http_method == "DELETE":
-            # Deletion of an entire Silo...
-            # Serious consequences follow this action
-            # Walk through all the items, emit a delete msg for each
-            # and then remove the silo
-            todelete_silo = ag.granary.get_rdf_silo(silo)
-            #for item in todelete_silo.list_items():
-            #    try:
-            #        ag.b.deletion(silo, item, ident=ident['repoze.who.userid'])
-            #    except:
-            #        pass
-            ag.granary.delete_silo(silo)
-            try:
-                ag.b.silo_deletion(silo, ident=ident['repoze.who.userid'])
-            except:
-                pass
-            try:
-                del ag.granary.state[silo]
-            except:
-                pass
-            ag.granary.sync()
-            ag.granary._register_silos()
-            #Delete silo from database
-            delete_silo(silo)
-            # conneg return
-            accept_list = None
-            response.content_type = "text/plain"
-            response.status_int = 200
-            response.status = "200 OK"
-            return "{'ok':'true'}"
+            ##fields = [("silo", source)]
+            ##print fields
+            ##files =[]
+            (reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
+            ##(resp,respdata) = datastore.doHTTP_DELETE(reqdata, reqtype, resource='/' + source + "/admin", expect_type="application/JSON")
+          
+            (resp,respdata) = datastore.doHTTP_DELETE(resource='/' + source + "/admin")
+            resource ='/' + source + "/admin"
+            print resp.read()
+ 
+            print "Response Status = "
+            print resp.status 
+
+            if  resp.status== 200:
+                #Modify the source entry in the sqllite database in the data finder. Change activate = False.
+                try:
+                    s_q= meta.Session.query(SourceInfo).filter(SourceInfo.silo == source)
+                    s_q.one()
+                    s_q.update({
+                                   'title':title,
+                                   'description':description,
+                                   'notes':notes,
+                                   'administrators':administrators,
+                                   'managers':managers,
+                                   'users':users,
+                                   'disk_allocation':disk_allocation,
+                                   'activate':False
+                                })     
+                    meta.Session.commit()
+                except orm.exc.NoResultFound:
+                    sourceinfo.activate =  False
+                    meta.Session.add(sourceinfo)
+                    meta.Session.commit()
+                    pass
+                except IntegrityError:
+                    #log.error('Error adding user %s'%user_details['username'])
+                    #print traceback.format_exc()
+                    meta.Session.rollback()
+                    return False
+                c.message = "Metadata deleted"
+                return True 
+            else:
+                print "Failure"
+                abort(resp.status, respdata )

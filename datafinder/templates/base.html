@@ -51,7 +51,8 @@
             $("#" + toRemove).remove();
             window.location.replace(redirectURL);
         },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
+        error: function (XMLHttpRequest, textStatus, errorThrown) 
+        {
           alert("Ooooops!, request failed with status: " + XMLHttpRequest.status + ' ' + XMLHttpRequest.responseText);
         }
       });

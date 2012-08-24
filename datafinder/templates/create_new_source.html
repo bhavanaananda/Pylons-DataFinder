@@ -19,12 +19,13 @@
 <form class="create_silo" id="form1" name="form1" method="POST" enctype="multipart/form-data" action="" accept-charset="UTF-8">
 % if c.kw:
 	<div><label for="newSilo">Source  name (eg 'a' -> /a/datasets/...) : </label>
-	## % if c.header == "approve":
-	##	<input type="text" name="silo" id="newSilo" value="${c.kw.get('silo')}" disabled="true" />
-	## % elif c.header == "create":
-	##	<input type="text" name="silo" id="newSilo" value="${c.kw.get('silo')}" />
-	## % endif
-	<input type="text" name="silo" id="newSilo" value="${c.kw.get('silo')}" />
+	% if c.header == "approve":
+		<input type="text" value="${c.kw.get('silo')}" disabled="true" />
+	% elif c.header == "create":
+		<input type="text" value="${c.kw.get('silo')}" />
+    % endif
+
+	<input type="hidden" name="silo" id="newSilo" value="${c.kw.get('silo')}"  />
 	</div>
 	<div class="form_helper">The machine readable name of the source, used by the system and in the urls. <br/>
 	<br/>For example the name <i>sourcea</i> will appear in the url as <i>http://databank/sourcea/...</i></div></li>
@@ -84,15 +85,30 @@
 	<input id="newSiloAllocation" type="textbox" name="disk_allocation" /></div>
 % endif
 
+<div>
 % if c.header == "approve":
-	<div><input type="submit" name="save" id="save" value="Save" /></div>
+<input type="submit" name="save" id="save" value="Save" />
 % elif c.header== "create":
-	<div><input type="submit" name="register" id="register" value="Register"/></div>
+	<div><input type="submit" name="register" id="register" value="Register"/>
 % endif
 
 % if c.activate == None:
-<div><input type="submit" name="activate" id="activate" value="Activate" style="display:none"/></div>
+<div><input type="submit" name="activate" id="activate" value="Activate" style="display:none"/>
 % else:
-<div><input type="submit" name="activate" id="activate" value="Activate" /></div>
+<div><input type="submit" name="activate" id="activate" value="Activate" />
 % endif
+</div>
+
+<div id="editor_view">
+  <h2>Edit options</h2>
+  <ul class="stateInfo">
+
+  <li><a href="/list_sources">
+    <img src="/static/styles/images/silo-view-icon-24.png"/>View sources</a>
+  </li>
+
+  </ul>
+</div>
+
+
 </form>

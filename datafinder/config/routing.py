@@ -34,7 +34,7 @@ def make_map(config):
     map.connect('/admin/save_source', controller='admin', action='savesource')
     map.connect('/admin/register_source', controller='admin', action='registersource')
     map.connect('/admin', controller='admin', action='index')
-    map.connect('/{source}/admin', controller='admin', action='sourceview')
+    map.connect('/{source}/admin', controller='admin', action='sourceinfo')
     ##map.connect('/manage_source', controller='manage_source', action='index')
     map.connect('/manage_source/{source}', controller='manage_source', action='managesource')
 ##    map.connect('/search', controller='search', action='index')

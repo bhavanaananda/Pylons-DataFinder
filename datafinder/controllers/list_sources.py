@@ -42,6 +42,7 @@ class ListSourcesController(BaseController):
         c.user_logged_in_name=""
         c.src = ag.root
         c.host = ag.host
+        c.message=""
         user_name = 'admin'
         password = 'test'
         datastore = HTTPRequest(endpointhost=c.host)
@@ -63,7 +64,7 @@ class ListSourcesController(BaseController):
         
         
         try:
-            s_q= meta.Session.query(SourceInfo.silo)
+            s_q= meta.Session.query(SourceInfo.silo).filter(SourceInfo.activate == False)
             for source in s_q:
                 c.unregistered_sources.append(source.silo)
             print "Unregistered sources"

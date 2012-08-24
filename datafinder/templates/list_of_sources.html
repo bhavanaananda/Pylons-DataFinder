@@ -3,6 +3,11 @@
 <%def name="head_tags()">
   <title> List of Sources </title>
 </%def>
+
+% if c.message:
+	<p><span style="color:red;">${c.message}</span></p>
+% endif
+
 <%
 n = len(c.source_infos)
 %>
@@ -36,8 +41,8 @@ n = len(c.source_infos)
 
 
 <h1> List of Unregistered Sources </h1>
-% if c.source_infos and n > 0:
-  <p>Number of sources awaiting admin approval: ${n}</p>
+% if c.unregistered_sources and len(c.unregistered_sources)> 0:
+  <p>Number of sources awaiting admin approval: ${len(c.unregistered_sources)}</p>
   <div class="silo_list">
   <table summary="list of sources awaiting admin approval" class="siloList">
   <tr>
@@ -57,7 +62,7 @@ n = len(c.source_infos)
   </table>
   </div>
 % else:
-  <p>Number of sources: ${n}</p>
+  <p>Number of unregistered sources: ${len(c.unregistered_sources)}</p>
 % endif
 
   <div id="editor_view">
