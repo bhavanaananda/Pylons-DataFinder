@@ -30,7 +30,7 @@ class TestOaiClient(unittest.TestCase):
         self.args = {'from':None, 'until':self.until}
         self.oai_ns = "{http://www.openarchives.org/OAI/2.0/}"
         #self.silo = "sandbox"
-  #  eprint4s_sources = {
+  #  eprints-mathss_sources = {
   #  'maths':{'base':"http://eprints.maths.ox.ac.uk/cgi/oai2", 'records_base':'http://eprints.maths.ox.ac.uk/'}
   # ,'sbs' : {'args':"set=6F72613D54525545", 'base':"http://eureka.sbs.ox.ac.uk/cgi/oai2", 'records_base':'http://eureka.sbs.ox.ac.uk/'}
   # ,'economics':{'base':"http://economics.ouls.ox.ac.uk/cgi/oai2", 'records_base':'http://economics.ouls.ox.ac.uk/'}
@@ -134,13 +134,13 @@ class TestOaiClient(unittest.TestCase):
         tree = ET.ElementTree(file=self.ids_data_file)
         rt = tree.getroot()
         ids = rt.findall("%(ns)sListIdentifiers/%(ns)sheader/%(ns)sidentifier"%{'ns':self.oai_ns})
-        #self.oai_createSilo("eprint4s")
+        #self.oai_createSilo("eprints-mathss")
         for ID in ids:
              if resumptionToken and 'deletion' in resumptionToken:
                 self.delete_identifiers.append(ID.text)
              else:
                  self.identifiers.append(ID.text)
-                 self.oai_createDataset( src, "eprint4s", ID.text)
+                 self.oai_createDataset( src, "eprints-mathss", ID.text)
                  break
                  
         rtoken = rt.findall("%(ns)sListIdentifiers/%(ns)sresumptionToken"%{'ns':self.oai_ns})
@@ -244,7 +244,7 @@ class TestOaiClient(unittest.TestCase):
         postRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
         (resp,respdata) = postRequest.doHTTP_POST(
             reqdata, reqtype, 
-            resource="/eprint4/datasets/")
+            resource="/eprints-maths/datasets/")
         
         # Post the harvested oai_dc metadata file to the dataset
         fields=[]
@@ -256,13 +256,13 @@ class TestOaiClient(unittest.TestCase):
         postRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
         (resp,respdata) = postRequest.doHTTP_POST(
             reqdata, reqtype, 
-            resource="/eprint4/datasets/"+id)
+            resource="/eprints-maths/datasets/"+id)
         
         #<rdf:Description rdf:resource="http://example.org/testrdf.zip">
         # Add the dc:relation into the main manifest file that related to the oai_dc manifest file
 
         
-        fields=[ ("relation", "/eprint4/datasets/"+id+"/dc_manifest_file.rdf")]
+        fields=[ ("relation", "/eprints-maths/datasets/"+id+"/dc_manifest_file.rdf")]
         files =[]
         metadata_content = """<rdf:RDF
   xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -275,13 +275,13 @@ class TestOaiClient(unittest.TestCase):
 </rdf:RDF>"""
 
         print "METADATA TO BE MUNGED" + metadata_content
-        print "resource url: /eprint4/datasets/"+id+"/manifest.rdf"
+        print "resource url: /eprints-maths/datasets/"+id+"/manifest.rdf"
 
         putRequest = HTTPRequest(endpointhost=host)        
         putRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
         (resp,respdata) = putRequest.doHTTP_PUT(
             metadata_content,
-            resource="/eprint4/datasets/"+id+"/manifest.rdf")
+            resource="/eprints-maths/datasets/"+id+"/manifest.rdf")
         #(reqtype, reqdata) = SparqlQueryTestCase.encode_multipart_formdata(fields, files)
         #
         
@@ -292,8 +292,8 @@ class TestOaiClient(unittest.TestCase):
         #self.assertEquals(LHobtained, LHexpected, 'Content-Location not correct')
         return
         
-#  <rdfs:seeAlso rdf:resource=" """+http_host+"/eprint4/datasets/"+id+"/dc_manifest_file.rdf"+""" "/>
-#  <rdf:Description rdf:about=" """+http_host+"""/eprint4/datasets/"""+id+""" ">
+#  <rdfs:seeAlso rdf:resource=" """+http_host+"/eprints-maths/datasets/"+id+"/dc_manifest_file.rdf"+""" "/>
+#  <rdf:Description rdf:about=" """+http_host+"""/eprints-maths/datasets/"""+id+""" ">
 # xmlns:dcterms='http://purl.org/dc/terms/'
 #  xmlns:oxds='http://vocab.ox.ac.uk/dataset/schema#'
 #  xmlns:ore='http://www.openarchives.org/ore/terms/'
@@ -303,7 +303,7 @@ class TestOaiClient(unittest.TestCase):
         user_name = 'admin'
         password = 'test'
         id="oai:generic-eprints-org:1086"
-        fields=[ ("relation", "/eprint4/datasets/"+id+"/dc_manifest_file.rdf")]
+        fields=[ ("relation", "/eprints-maths/datasets/"+id+"/dc_manifest_file.rdf")]
         files =[]
         metadata_content = """<rdf:RDF
   xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -315,7 +315,7 @@ class TestOaiClient(unittest.TestCase):
 </rdf:RDF>"""
 
         #print "METADATA TO BE MUNGED" + metadata_content
-       # print "resource url: /eprint4/datasets/"+id+"/manifest.rdf"
+       # print "resource url: /eprints-maths/datasets/"+id+"/manifest.rdf"
 #(resp, respdata) = datastore.doHTTP_PUT(metadata_content, resource="/sandbox/datasets/TestSubmission/manifest.rdf", expect_type="text/plain")
 
 
@@ -324,7 +324,7 @@ class TestOaiClient(unittest.TestCase):
         putRequest.setRequestUserPass(endpointuser=user_name, endpointpass=password)      
         (resp,respdata) = putRequest.doHTTP_PUT(
             metadata_content,
-            resource="/eprint4/datasets/"+id+"/manifest.rdf")
+            resource="/eprints-maths/datasets/"+id+"/manifest.rdf")
         
         # os.remove(self.dc_data_file)
         
@@ -371,11 +371,11 @@ class TestOaiClient(unittest.TestCase):
         #record_metadata = rt.find("%(ns)sGetRecord/%(ns)srecord/%(ns)smetadata"%{'ns':self.oai_ns})
         oai_dc = rt.find("%(ns)sGetRecord/%(ns)srecord/%(ns)smetadata/{%(oai_dc)s}dc"%{'ns':self.oai_ns,'oai_dc':namespaces['oai_dc']})
         oai_dc_string = ET.tostring(oai_dc)
-        oai_dc_string=oai_dc_string.replace("oai_dc:dc ","rdf:RDF")
+        oai_dc_string=oai_dc_string.replace("oai_dc:dc","rdf:RDF")
         oai_dc_string=oai_dc_string.replace('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"', '')
-        oai_dc_string=oai_dc_string.replace('xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">', "><rdf:Description rdf:about="">")
+        oai_dc_string=oai_dc_string.replace('xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">', '><rdf:Description rdf:about="">')
         oai_dc_string=oai_dc_string.replace('xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"', 'xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        
+        oai_dc_string=oai_dc_string.replace("</rdf:RDF>","</rdf:Description></rdf:RDF>")
         
         print "OAI_DC TREE:   " + ET.tostring(oai_dc)
         
