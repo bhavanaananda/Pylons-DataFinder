@@ -30,7 +30,7 @@ class TestOaiClient(unittest.TestCase):
         self.args = {'from':None, 'until':self.until}
         self.oai_ns = "{http://www.openarchives.org/OAI/2.0/}"
         #self.silo = "sandbox"
-  #  eprints-mathss_sources = {
+  #  eprints-maths_sources = {
   #  'maths':{'base':"http://eprints.maths.ox.ac.uk/cgi/oai2", 'records_base':'http://eprints.maths.ox.ac.uk/'}
   # ,'sbs' : {'args':"set=6F72613D54525545", 'base':"http://eureka.sbs.ox.ac.uk/cgi/oai2", 'records_base':'http://eureka.sbs.ox.ac.uk/'}
   # ,'economics':{'base':"http://economics.ouls.ox.ac.uk/cgi/oai2", 'records_base':'http://economics.ouls.ox.ac.uk/'}
@@ -134,13 +134,13 @@ class TestOaiClient(unittest.TestCase):
         tree = ET.ElementTree(file=self.ids_data_file)
         rt = tree.getroot()
         ids = rt.findall("%(ns)sListIdentifiers/%(ns)sheader/%(ns)sidentifier"%{'ns':self.oai_ns})
-        #self.oai_createSilo("eprints-mathss")
+        #self.oai_createSilo("eprints-maths")
         for ID in ids:
              if resumptionToken and 'deletion' in resumptionToken:
                 self.delete_identifiers.append(ID.text)
              else:
                  self.identifiers.append(ID.text)
-                 self.oai_createDataset( src, "eprints-mathss", ID.text)
+                 self.oai_createDataset( src, "eprints-maths", ID.text)
                  break
                  
         rtoken = rt.findall("%(ns)sListIdentifiers/%(ns)sresumptionToken"%{'ns':self.oai_ns})

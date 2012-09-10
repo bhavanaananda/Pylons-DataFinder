@@ -1,0 +1,265 @@
+# -*- coding: utf-8 -*-
+<%inherit file="/base.html" />
+
+% if c.message:
+	<p><span style="color:red;">${c.message}</span></p>
+% endif
+
+<%def name="head_tags()">
+  <title> List of Sources </title>
+</%def>
+
+
+% if c.header== "create":
+	<h1>Metadata Deposit Form</h1>
+% elif c.header == "approve":
+	<h1>Approve the Source</h1>
+% endif
+
+<form class="create_silo" id="form1" name="form1" method="POST" enctype="multipart/form-data" action="" accept-charset="UTF-8">
+% if c.kw:
+	<div><label for="newSilo">Source  name (eg 'a' -> /a/datasets/...) : </label>
+	% if c.header == "approve":
+		<input type="text" value="${c.kw.get('silo')}" disabled="true" />
+	% elif c.header == "create":
+		<input type="text" value="${c.kw.get('silo')}" />
+    % endif
+
+	<input type="hidden" name="silo" id="newSilo" value="${c.kw.get('silo')}"  />
+	</div>
+	<div class="form_helper">The machine readable name of the source, used by the system and in the urls. <br/>
+	<br/>For example the name <i>sourcea</i> will appear in the url as <i>http://databank/sourcea/...</i></div></li>
+	<div><label for="newSiloTitle">Title:</label>
+	<input type="text" id="newSiloTitle" name="title" value="${c.kw.get('title')}" /></div>	
+	<div><label for="oaipmhTitle">OAI-PMH:</label>
+	<input type ="checkbox" name="oaipmh"id="oaipmh"/> </div>
+	<div><label for="urlTitle">URL:</label>
+	<input type ="text" name="oaipmhurl"id="oaipmhurl" /> </div>
+	<div><label for="allowoverrideTitle">Allow override:</label>
+	<input type ="radio" name="yes" id="yes">Yes</input>
+	<input type ="radio" name="no" id="no">No</input></div>
+	<div><label for="newSiloDescription">Description:</label>
+	<input id="newSiloDescription" type="textbox" name="description"  value="${c.kw.get('description')}"/></div>
+	<div><label for="newSiloNotes">Notes:</label>
+	<input id="newSiloNotes" type="textbox" name="notes"  value="${c.kw.get('notes')}"/></div>
+	<div><label for="newSiloAdministrators">Administrators:</label>
+	<input id="newSiloAdministrators" type="textbox" name="administrators"  value="${c.kw.get('administrators')}"/></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloManagers">Managers:</label>
+	<input id="newSiloManagers" type="textbox" name="managers" value="${c.kw.get('managers')}"/></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloUsers">Submitters:</label>
+	<input id="newSiloUsers" type="textbox" name="users" value="${c.kw.get('users')}"/></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloAllocation">Disk Allocation (in Kb):</label>
+	<input id="newSiloAllocation" type="textbox" name="disk_allocation" value="${c.kw.get('disk_allocation')}" /></div>
+% else:
+    <div><label for="newDepositDataLabel">I would like to deposit data in DataBank</label>
+         <input type="radio" name="depositDataYes" id="depositYes"> Yes </input>
+         <input type="radio" name="depositDataNo" id="depositNo" > No </input>
+    </div>
+    <div><label for="newFirstNameLabel">First name of the person(s) who created the data</label>
+         <input type="text" name="newFirstName" id="newFirstName"/>
+    </div>
+    <div><label for="newLastNameLabel">Last name of the person(s) who created the data</label>
+         <input type="text" name="newLastName" id="newLastName"/>
+    </div>
+    
+    
+    <div><label for="newDataOwner">Data Owner</label></div>
+    <div><label for="newRoleLabel">Role</label>
+         <input type="text" name="newRole" id="newRole"/>
+    </div>
+    <div><label for="newDeptLabel">Department or Research Institute</label>
+         <input type="text" name="newDept" id="newDeptLabel"/>
+    </div>
+    <div><label for="newFundedResearchLabel">Is your data an output of funded research ?</label>
+         <input type="radio" name="fundedResearchYes" id="fundedResearchYes"> Yes </input>
+         <input type="radio" name="fundedResearchNo" id="fundedResearchNo" > No </input>
+    </div>
+    <div><label for="newFundingAgencyLabel">Funding Agency</label>
+         <input type="text" name="fundedAgency" id="fundedAgency"> </input>
+    </div>
+    <div><label for="newGrantNumberLabel">Grant Number</label>
+         <input type="text" name="grantNumber" id="grantNumber"> </input>
+    </div>
+    <div><label for="newProjectDescLabel">A short description of the project or provide URL of the project web-page</label>
+         <input type="text" name="projectDesc" id="projectDesc"> </input>
+    </div>
+    <div><label for="newCitationTitleLabel">The title of this dataset to be used in a citation</label>
+    </div>
+    <div><label for="newCitationSubTitleLabel">Sub-title</label>
+         <input type="text" name="newCitationSubTitle" id="newCitationSubTitle"> </input>
+    </div>
+    <div><label for="newDigitalFormatLabel">Is your dataset in digital format or not?</label>
+    </div>
+    <div><label for="newNonDigitalLabel">Non-digital</label>        
+    </div>
+    <div><label for="newLocationNDLabel">Location of the dataset/email</label>    
+         <input type="text" name="newLocationND" id="newLocationND"> </input>    
+    </div>
+
+    <div><label for="newDigitalLabel">Digital</label>        
+    </div>
+    <div><label for="newLocationDLabel">Location of the dataset/URL/DOI/email</label>    
+         <input type="text" name="newLocationD" id="newLocationD"> </input>    
+    </div>
+    <div><label for="newResourceTypeLabel">Resource Type</label>    
+         <input type="text" name="newResourceType" id="newResourceType"> </input>    
+    </div>
+    <div><label for="newSizeLabel">Size</label>    
+         <input type="text" name="newSize" id="newSize"> </input>    
+    </div>
+    <div><label for="newFormatLabel">Format</label>    
+         <input type="text" name="newFormat" id="newFormat"> </input>    
+    </div>
+    <div><label for="newVersionLabel">Version</label>    
+         <input type="text" name="newVersion" id="newVersion"> </input>    
+    </div>
+    <div><label for="newPublicationYearLabel">Publication tear</label>    
+         <input type="text" name="newPublication" id="newPublication"> </input>    
+    </div>
+    <div><label for="newPublisherLabel">Publisher</label>    
+         <input type="text" name="newPublisher" id="newPublisher"> </input>    
+    </div>
+     
+    <div><label for="newDateLabel">Date(other)</label></date>     
+    </div>
+    <div><label for="newTBCLabel">TBC</label>    
+         <input type="text" name="newTBC" id="newTBC"> </input>    
+    </div>    
+    <div><label for="newAccessDateLabel">What is the earliest date users can access this dataset? </label>       
+    </div>    
+    <div><label for="newOpenLabel">Open</label>    
+         <input type="text" name="newOpen" id="newOpen"> </input>    
+    </div>    
+    <div><label for="newEmbargoedLabel">Embargoed</label>    
+         <input type="text" name="newEmbargoed" id="newEmbargoed"> </input>    
+    </div>
+    <div><label for="newDarkLabel">Dark</label>    
+         <input type="text" name="newDark" id="newDark"> </input>    
+    </div>
+    <div><label for="newInvisibleLabel">Invisible</label>    
+         <input type="text" name="newInvisible" id="newInvisible"> </input>    
+    </div> 
+    <div><label for="newReasonForEmbargoLabel">Reason for embargo</label>    
+         <input type="text" name="newReasonForEmbargo" id="newReasonForEmbargo"> </input>    
+    </div> 
+    <div><label for="newDataSubjectsLabel">What are the data subjec to access T's and C's ?</label></div> 
+    <div><label for="newAccessTermsLabel">Access terms and conditions</label>    
+         <input type="text" name="newAccessTerms" id="newAccessTerms"> </input>    
+    </div>  
+    <div><label for="newAccessTermsYesLabel">Yes</label>    
+         <input type="checkbox" name="newAccessTermsYes" id="newAccessTermsYes" checked="checked">Yes</input>    
+    </div> 
+    <div><label for="newDefaultODLLabel">Default ODL? + options</label>    
+         <input type="text" name="newDefultODL" id="newDefultODL" ></input>    
+    </div> 
+    <div><label for="newSubjectHeadingsLabel">Select subject headings taht most closely describe your data.</label></div> 
+    <div><label for="newFastSubLLabel">FAST subject headings</label>    
+         <input type="text" name="newFastSub" id="newFastSub"></input>    
+    </div>
+    <div><label for="newOtherSubLLabel">Options for other subject class</label>    
+         <input type="text" name="newOtherSub" id="newOtherSub"></input>    
+    </div> 
+    <div><label for="newNameSubClassSchemeLabel">Name of subject class scheme</label>    
+         <input type="text" name="newNameSubClassScheme" id="newNameSubClassScheme"></input>    
+    </div> 
+    <div><label for="newSubjectSpecificMetadataLabel">Subject specific Metadata</label>    
+         <input type="text" name="newNameSubClassScheme" id="newNameSubClassScheme"></input>    
+    </div> 
+    <div><label for="newNameOfSubjectSpecificMetadataLabel">Name of subject specific Metadata</label>    
+         <input type="text" name="newNameOfSubjectSpecificMetadata" id="newNameOfSubjectSpecificMetadataLabel"></input>    
+    </div> 
+    <div><label for="newKaywordsLabel">Keywords</label>    
+         <input type="text" name="newKaywords" id="newKeywords"></input>    
+    </div>
+    <div><label for="newAssociatedPublicationsLabel">Do you have publications associated with this data?</label>
+         <input type="radio" name="newAssociatedPublicationsYes" id="newAssociatedPublicationsYes"> Yes </input>
+         <input type="radio" name="newAssociatedPublicationsNo" id="newAssociatedPublicationsNo" > No </input>
+    </div>
+    <div><label for="newDoc1Label">Documentation 1 (Text/Link/URI)</label>    
+         <input type="text" name="newDoc1" id="newDoc1"></input>    
+    </div>
+    <div><label for="newDoc2Label">Documentation 2 (Text/Link/URI)</label>    
+         <input type="text" name="newDoc2" id="newDoc2"></input>    
+    </div>
+    <div><label for="newDocLangLabel">What is the predominant language of the data/documentation?</label>
+         <input type="text" name="newDocLang" id="newDocLang"></input> 
+    </div>
+    <div><label for="newLastAccessReqDateLabel">Last access request Date?</label>
+         <input type="text" name="newLastAccessReqDate" id="newLastAccessReqDate"></input> 
+    </div>
+    <div><label for="newMatadataRightsLabel">Rights for metadata. Default. CC0? ODC?</label>
+         <input type="text" name="newMatadataRights" id="newMatadataRights"></input> 
+    </div>
+    <div><label for="newUUIDLabel">Record/digital object ID</label>
+         <input type="text" name="newUUID" id="newUUID"></input> 
+    </div>
+    <div><label for="newSourceLabel">Source (name)</label>
+         <input type="text" name="newSource" id="newSource"></input> 
+    </div>
+    <div><label for="newSourceUrlLabel">Source URL</label>
+         <input type="text" name="newSourceUrl" id="newSourceUrl"></input> 
+    </div>
+    
+    
+    
+	<div><label for="newSilo">Source  name (eg 'a' -> /a/datasets/...)</label>
+	<input type="text" name="silo" id="newSilo" />
+	</div>
+	<div class="form_helper">The machine readable name of the source, used by the system and in the urls. <br/>
+	<br/>For example the name <i>sourcea</i> will appear in the url as <i>http://databank/sourcea/...</i></div></li>
+	<div><label for="newSiloTitle">Title:</label>
+	<input type="text" id="newSiloTitle" name="title" /></div>	
+	<div><label for="oaipmhTitle">OAI-PMH:</label>
+	<input type ="checkbox" name="oaipmh"id="oaipmh"/> </div>
+	<div><label for="urlTitle">URL:</label>
+	<input type ="text" name="oaipmhurl"id="oaipmhurl"/> </div>
+	<div><label for="allowoverrideTitle">Allow override:</label>
+	<input type ="radio" name="yes" id="yes">Yes</input>
+	<input type ="radio" name="no" id="no">No</input></div>
+	<div><label for="newSiloDescription">Description:</label>
+	<input id="newSiloDescription" type="textbox" name="description" /></div>
+	<div><label for="newSiloNotes">Notes:</label>
+	<input id="newSiloNotes" type="textbox" name="notes" /></div>
+	<div><label for="newSiloAdministrators">Administrators:</label>
+	<input id="newSiloAdministrators" type="textbox" name="administrators" /></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloManagers">Managers:</label>
+	<input id="newSiloManagers" type="textbox" name="managers" /></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloUsers">Submitters:</label>
+	<input id="newSiloUsers" type="textbox" name="users" /></div>
+	<div class="form_helper">Separate multiple usernames with a comma</div>
+	<div><label for="newSiloAllocation">Disk Allocation (in Kb):</label>
+	<input id="newSiloAllocation" type="textbox" name="disk_allocation" /></div>
+% endif
+
+<div>
+% if c.header == "approve":
+<input type="submit" name="save" id="save" value="Save" />
+% elif c.header== "create":
+	<div><input type="submit" name="register" id="register" value="Register"/>
+% endif
+
+% if c.activate == None:
+<div><input type="submit" name="activate" id="activate" value="Activate" style="display:none"/>
+% else:
+<div><input type="submit" name="activate" id="activate" value="Activate" />
+% endif
+</div>
+
+<div id="editor_view">
+  <h2>Edit options</h2>
+  <ul class="stateInfo">
+
+  <li><a href="/list_sources">
+    <img src="/static/styles/images/silo-view-icon-24.png"/>View sources</a>
+  </li>
+
+  </ul>
+</div>
+
+
+</form>
