@@ -25,6 +25,40 @@
 	    $('#form1').attr('action', actionURL);  
 	    $("#form1")[0].submit();    
 	});
+	
+  $('#depositDataYes').change(function() 
+    {
+	    if($(this).val()=='yes') {   
+	       $('#depositfileupload').removeAttr('disabled');
+
+	    } else {
+	       $('#depositfileupload').attr('disabled', 'disabled');
+    } 
+  });
+    $('#depositDataNo').change(function() 
+    {
+	    if($(this).val()=='yes') {   
+	       $('#depositfileupload').removeAttr('disabled');
+
+	    } else {
+	       $('#depositfileupload').attr('disabled', 'disabled');
+    } 
+  });
+  
+  $('#fundedResearch').click(function() 
+    { 
+	    if($(this).is(':checked')) {   	    
+	             $('#fundedAgency').removeAttr('disabled');
+	             $('#grantNumber').removeAttr('disabled');
+	             $('#projectDesc').removeAttr('disabled');\
+	             
+	    } else {
+	             $('#fundedAgency').attr('disabled', 'disabled');   
+	    	     $('#grantNumber').attr('disabled', 'disabled');
+	    	     $('#projectDesc').attr('disabled', 'disabled');
+    } 
+  });
+  
   $('#register').click( function()
 	{
 	    var actionURL = "/admin/register_source";
@@ -140,21 +174,30 @@ media="(min-width: 1100px) and (max-width: 1600px)"/>
      <!--  mainnav div starts -->
 	<span class="nonVis"  >main navigation</span>
 
-	<ul id="mainnav">
-	<li> <a href="/home" id="nav-index" >home</a></li>
-	
-	<li><a href="/silos" >browse</a></li>
+	<div id="mainmenu">
+		<a href="/search/detailed" id="nav-index" >Search</a> <span> | </span>
+		<a href="/" id="nav-index" >Contribute</a> <span> | </span>
+		<a href="/silos" >Browse</a> <span> | </span>
+        <a href="/list_sources" >admin</a><span> | </span>
 
-	
-	<li><a href="/about" >about</a></li>
-
-    <li><a href="/list_sources" >admin</a></li>
-
-	% if showAdmin:
-	<li><a href="/admin">${showAdmin}</a></li>
-	% endif
-
-	</ul>
+		% if showAdmin:
+		<a href="/admin">${showAdmin}</a><span> | </span>
+		% endif
+	    <a href="/about" >about</a> <span> | </span>
+		<a href="/" >Help</a> 
+	</div>
+<div id="links">
+    <a href="/search/detailed">SEARCH</a><a href="/information/contribute">CONTRIBUTE</a><a href="/browse">BROWSE</a>
+    <%include file="/quick_search_form.html"/> 
+</div>
+<div id="login">
+  % if c.user_logged_in_name:
+    Welcome <a href="/users/${c.user_logged_in_name}">${c.user_logged_in_name}</a>
+    <a href="/logout_handler?came_from=${current_url}">Logout</a>
+  % else:
+    <a href="/login?came_from=${current_url}">Login</a>
+  % endif
+</div>
 
 <span class="nonVis" >breadcrumb trail</span>
 <ul class="breadcrumb" >
@@ -182,17 +225,9 @@ path_url = "/%s/datasets/%s"%(c.silo_name,c.id)
 % endif
 </ul>
 
-<div class="nav_rt">
-  % if c.user_logged_in_name:
-    <p>Welcome <a href="/users/${c.user_logged_in_name}">${c.user_logged_in_name}</a></p>
-    <p><a href="/logout_handler?came_from=${current_url}">Logout</a></p>
-  % else:
-    <p><a href="/login?came_from=${current_url}">Login</a></p>
-  % endif
-</div>
 
 
-	
+
 </nav>
       
 

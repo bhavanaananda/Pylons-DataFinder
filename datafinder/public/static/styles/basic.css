@@ -21,6 +21,11 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  **/
 
+#bodlogo
+{
+  float:right;
+
+}
 body
 {
 	background-color: #fff;	
@@ -335,13 +340,12 @@ background-color: #fff;
 border: 1px solid #eee;
 margin: 3px;
 padding: 4px;
-
 word-wrap: break-word;
 
 }
 
 
-table th
+table th 
 {
   background: #002147; /* for non-css3 browsers */
 		/* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#002147', endColorstr='#DDDDDD'); */ /* for IE */
@@ -490,21 +494,26 @@ border: none;
 padding: 0px;
 
 }
-
- label 
+label
 {
-padding: 0px 2px 15px 5px;
-text-transform: uppercase;
+text-align:left;
 }
+
+## label 
+##{
+##padding: 0px 2px 15px 5px;
+##text-transform: uppercase;
+##}
 
 form div,
 form fieldset,
 div.summary div
 {
 
-max-width: 25em;
+max-width: 100em;
 clear: both;
 margin: 5px;
+padding:5px
 }
 
 
@@ -931,7 +940,7 @@ text-decoration: underline;
         position: absolute;
         width: 160px;
         margin-left: 10px;
-        top: 150px;
+        top: 300px;
         font-size: 11px;
 }
 
@@ -1566,4 +1575,90 @@ top: 0px;
         font-weight: bold;
         font-size: 1.2em;
         margin-bottom: 5px;
+}
+
+
+#links {
+	text-align: center;
+	background-color: #002147;
+	padding: 15px; 
+}
+
+#links a {
+	color: white;
+	margin: 0px 5px;
+	font-size: 20px;
+
+}
+
+#links a:hover {
+text-decoration: underline;
+}
+
+#links a.active {
+	font-size: 36px;
+}
+
+#quicksearch {   
+	background: #002147;
+	
+}
+#login {
+	text-align: right;
+	background-color: #002147;
+	padding: 5px
+}
+#login a{
+ 	color: white;
+}
+
+#login a:hover {
+text-decoration: underline;
+}
+#quicksearchform a {
+    font-size: 11px;
+    color: white;
+
+}
+
+#mainmenu{
+   background-color: #002147;
+}
+
+#mainmenu a {
+   color: white;   
+}
+#mainmenu span {
+   color: white;   
+}
+#mainmenu a:hover {
+text-decoration: underline;
+}
+
+.abau div label{
+    font-weight: bold;
+    font-size: 13px;
+    text-align:left;
+    width: 25em;
+    padding: 5px;
+    color: rgb(0, 33, 71);
+}
+
+
+.abau  .boxhead{
+  background: #002147; /* for non-css3 browsers */
+		/* filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#002147', endColorstr='#DDDDDD'); */ /* for IE */
+		/* background: -webkit-gradient(linear, left top, left bottom, from(#002147), to(#DDDDDD)); */ /* for webkit browsers */
+		/* background: -moz-linear-gradient(top,  #002147,  #DDDDDD); */ /* for firefox 3.6+ */ 
+  width: 70em;
+  border:1px solid #002147;
+  color: white;
+  font-weight: bold;
+  margin:15px 0px 0px 0px;
+}
+
+.abau  .boxbody{
+border:1px solid #002147;
+width: 70em;
+margin:0px
 }
