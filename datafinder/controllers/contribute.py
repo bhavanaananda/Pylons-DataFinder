@@ -33,6 +33,7 @@ from sqlalchemy.exc import IntegrityError
 import smtplib
 from email.mime.text import MIMEText
 
+
 class ContributeController(BaseController):
     def index(self):
         c.silo_name = ''
@@ -95,4 +96,3 @@ class ContributeController(BaseController):
             meta.Session.rollback()
             return False     
         return render("/contribute.html")     
-         
