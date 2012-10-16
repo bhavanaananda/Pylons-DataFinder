@@ -94,5 +94,5 @@ class ContributeController(BaseController):
         except IntegrityError:
             meta.Session.rollback()
             return False     
-        return render("/contribute.html")    
+        return render("/contribute.html")     
          
