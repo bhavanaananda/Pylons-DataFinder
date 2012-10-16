@@ -33,7 +33,7 @@ from sqlalchemy.exc import IntegrityError
 import smtplib
 from email.mime.text import MIMEText
 
-class DepositMetadataController(BaseController):
+class ContributeController(BaseController):
     def index(self):
         c.silo_name = ''
         c.ident = ''
@@ -51,7 +51,7 @@ class DepositMetadataController(BaseController):
         c.message=None
         c.header = "create"
         c.kw={}
-        return render('/deposit_metadata.html')
+        return render('/contribute.html')
     
     def approve(self,source):
         c.silo_name = ''
@@ -94,5 +94,5 @@ class DepositMetadataController(BaseController):
         except IntegrityError:
             meta.Session.rollback()
             return False     
-        return render("/deposit_metadata.html")    
+        return render("/contribute.html")    
          
