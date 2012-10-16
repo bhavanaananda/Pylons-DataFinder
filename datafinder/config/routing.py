@@ -29,7 +29,7 @@ def make_map(config):
     map.connect('/cookies', controller='cookies', action='index')
     map.connect('/about', controller='about', action='index')
     map.connect('/list_sources', controller='list_sources', action='index')
-    map.connect('/deposit_metadata', controller='deposit_metadata', action='index')    
+    map.connect('/contribute', controller='contribute', action='index')    
     map.connect('/create_source', controller='create_source', action='index')
     map.connect('/{source}/approve_source', controller='create_source', action='approve')
     map.connect('/admin/save_source', controller='admin', action='savesource')
